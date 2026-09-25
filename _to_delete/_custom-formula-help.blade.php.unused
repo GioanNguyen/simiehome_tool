@@ -1,0 +1,33 @@
+{{--
+    Shared by both the "add rule" form and each existing rule's edit form
+    below — included only while formula_type === 'custom_formula' is
+    selected (the parent x-show wraps this), so it doesn't clutter the
+    page for the other 4 built-in formula types that don't need it.
+
+    Explains, in Vietnamese, exactly which product/context columns the
+    "Công thức" expression may reference (with what each one actually
+    means, not just its raw column name) versus the 2 columns that power
+    the "Lấy phụ phí từ sản phẩm..." checkbox instead — an admin who
+    doesn't recognise "base_price" or "length_cm" by name, or who might
+    otherwise try typing "extra_fee" into the expression, gets the
+    context to avoid both mistakes.
+--}}
+<div class="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+    <p class="font-medium">Được dùng trong ô "Công thức" bên dưới (gõ đúng tên cột này):</p>
+    <ul class="mt-1.5 list-disc space-y-1 pl-4">
+        @foreach ($formulaVariableLabels as $variable => $label)
+            <li><code class="rounded bg-white px-1 py-0.5">{{ $variable }}</code> — {{ $label }}</li>
+        @endforeach
+    </ul>
+    <p class="mt-2">
+        Ví dụ: <code class="rounded bg-white px-1 py-0.5">base_price + length_cm * 5000</code>.
+        Gõ tên cột khác ngoài danh sách trên sẽ bị báo lỗi khi lưu.
+    </p>
+
+    <p class="mt-3 font-medium">Không gõ vào ô "Công thức" — 2 cột này chỉ dùng qua checkbox "Lấy phụ phí từ sản phẩm..." bên dưới:</p>
+    <ul class="mt-1.5 list-disc space-y-1 pl-4">
+        @foreach ($extraFeeVariableLabels as $variable => $label)
+            <li><code class="rounded bg-white px-1 py-0.5">{{ $variable }}</code> — {{ $label }}</li>
+        @endforeach
+    </ul>
+</div>

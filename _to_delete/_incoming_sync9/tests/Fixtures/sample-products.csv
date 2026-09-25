@@ -1,0 +1,11 @@
+ID,Type,SKU,Name,Categories,"Regular price","Sale price","Base price",Images,Parent,Published,"Attribute 1 name","Attribute 1 value(s)","Visibility in catalog"
+1,simple,GUONG-A,"Gương Ahi","Trang trí & gia dụng > GƯƠNG - Mirrors",1300000,1040000,900000,https://example.com/1.jpg,,1,,,visible
+2,variable,BAN-01,"Bàn Basic","Bàn - Tables > Bàn làm việc",,,,https://example.com/2.jpg,,1,Size,"120x60x75, 140x60x75",visible
+3,variation,,"Bàn Basic - 120x60x75",,1750000,1575000,,https://example.com/3.jpg,id:2,1,Size,120x60x75,
+4,variable,GHE-X,"Ghế X","Ghế - Chairs > Ghế đơn",,,,https://example.com/4.jpg,,1,,,visible
+5,variation,,"Ghế X - Đen",,900000,,,https://example.com/5.jpg,GHE-X,1,Color,Đen,
+6,simple,DRAFT-1,"Draft item","Kệ – Shelf",100000,,,https://example.com/6.jpg,,-1,,,visible
+7,simple,HIDDEN-1,"Hidden Product","Kệ – Shelf",50000,,,https://example.com/7.jpg,,1,,,hidden
+8,variable,HVAR-01,"Hidden Variable Parent","Bàn - Tables",,,,https://example.com/8.jpg,,1,Size,100x50x75,catalog
+9,variation,,"Hidden Variable Parent - 100x50x75",,800000,,,https://example.com/9.jpg,id:8,1,Size,100x50x75,
+,simple,BAD-1,"Missing id row","Bàn - Tables",100000,,,,,1,,,visible
