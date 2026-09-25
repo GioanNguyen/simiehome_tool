@@ -1,1 +1,2 @@
 *.sqlite*
+mysql_data_import.sql
