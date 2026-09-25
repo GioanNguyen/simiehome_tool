@@ -55,6 +55,36 @@ class ProductPricePreviewTest extends TestCase
             ]);
     }
 
+    public function test_the_unit_price_includes_the_product_extra_fee_when_length_is_below_minimum(): void
+    {
+        $product = Product::factory()->create([
+            'category' => 'Ghế - Chairs',
+            'base_price' => 6_875_000,
+            'extra_fee' => 400_000,
+            'minimum_length' => 200,
+        ]);
+
+        PricingRule::query()->create([
+            'formula_type' => 'custom_formula',
+            'formula_config' => ['expression' => 'base_price * length_cm / 100', 'use_product_extra_fee' => true],
+            'surcharge_amount' => 0,
+            'active' => true,
+        ]);
+
+        $this->actingAs(User::factory()->create())
+            ->getJson(route('products.price-preview', [
+                'product_id' => $product->id,
+                'quantity' => 1,
+                'length_cm' => 180,
+            ]))
+            ->assertOk()
+            ->assertJson([
+                'unit_price' => 12_775_000,
+                'unit_surcharge' => 400_000,
+                'surcharge' => 0,
+            ]);
+    }
+
     public function test_it_defaults_to_the_catalog_price_when_no_rule_is_assigned(): void
     {
         $user = User::factory()->create();

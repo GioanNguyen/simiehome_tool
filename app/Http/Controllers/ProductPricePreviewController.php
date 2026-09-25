@@ -40,6 +40,11 @@ class ProductPricePreviewController extends Controller
 
         return response()->json([
             'unit_price' => $result->unitPrice,
+            // Added once to the line total (not per unit) — e.g. the
+            // product's extra_fee when the custom length is ≤ minimum_length.
+            'surcharge' => $result->surcharge,
+            // Per-piece fee already included in unit_price.
+            'unit_surcharge' => $result->unitSurcharge,
             'formula_type' => $result->formulaType,
             'warning' => $result->warning,
         ]);

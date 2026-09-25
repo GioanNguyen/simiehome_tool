@@ -118,6 +118,21 @@
                                     </span>
                                 </p>
                                 <p
+                                    class="mt-1 text-xs font-medium text-brand-600"
+                                    x-show="main.unitSurcharge > 0 && !main.priceEdited"
+                                    x-cloak
+                                >
+                                    Đơn giá đã gồm phụ phí <span x-text="formatCurrency(main.unitSurcharge)"></span>/sản phẩm<span x-show="Number(main.quantity) > 1"> × <span x-text="main.quantity"></span> = <span x-text="formatCurrency(main.unitSurcharge * Number(main.quantity))"></span></span>
+                                </p>
+                                <p
+                                    class="mt-1 text-xs font-medium text-brand-600"
+                                    x-show="main.surcharge > 0 && !main.priceEdited"
+                                    x-cloak
+                                >
+                                    + Phụ phí <span x-text="formatCurrency(main.surcharge)"></span>
+                                    (cộng 1 lần vào thành tiền, không nhân theo số lượng)
+                                </p>
+                                <p
                                     class="mt-1 text-xs font-medium text-amber-600"
                                     x-show="main.formulaWarning && !main.priceEdited"
                                     x-cloak

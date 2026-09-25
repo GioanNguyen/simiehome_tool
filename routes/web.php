@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/pricing-rules', [PricingRuleController::class, 'index'])->name('admin.pricing-rules.index');
         Route::post('/admin/pricing-rules', [PricingRuleController::class, 'store'])->name('admin.pricing-rules.store');
         Route::patch('/admin/pricing-rules/{pricingRule}', [PricingRuleController::class, 'update'])->name('admin.pricing-rules.update');
+        Route::delete('/admin/pricing-rules/{pricingRule}', [PricingRuleController::class, 'destroy'])->name('admin.pricing-rules.destroy');
     });
 
     // Admin only: create users, assign roles.

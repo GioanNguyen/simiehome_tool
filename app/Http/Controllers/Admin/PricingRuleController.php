@@ -14,6 +14,9 @@ use Illuminate\View\View;
 
 class PricingRuleController extends Controller
 {
+    /** Select value for a rule that applies to every category. */
+    public const ALL_CATEGORIES = '__all__';
+
     public const FORMULA_TYPES = ['catalog_price', 'length_ratio', 'fixed', 'quantity', 'custom_formula'];
 
     /**
@@ -111,6 +114,22 @@ class PricingRuleController extends Controller
             'notes' => ['nullable', 'string'],
         ]);
 
+        $productId = $validated['product_id'] ?? null;
+        $category = $validated['category'] ?? null;
+
+        // A rule must target something: a product, a category, or — via the
+        // explicit "Tất cả nhóm sản phẩm" option — every category (stored as
+        // category = null, product_id = null; see PricingEngine::resolveRule).
+        if ($productId === null && ($category === null || $category === '')) {
+            return back()
+                ->withErrors(['category' => 'Vui lòng chọn nhóm sản phẩm, "Tất cả nhóm sản phẩm" hoặc nhập ID sản phẩm.'])
+                ->withInput();
+        }
+
+        if ($category === self::ALL_CATEGORIES) {
+            $category = null;
+        }
+
         if ($validated['formula_type'] === 'custom_formula') {
             $expressionError = $this->validateExpression($validated['expression']);
 
@@ -120,7 +139,7 @@ class PricingRuleController extends Controller
         }
 
         PricingRule::query()->create([
-            'category' => ($validated['product_id'] ?? null) ? null : ($validated['category'] ?? null),
+            'category' => $productId ? null : $category,
             'product_id' => $validated['product_id'] ?? null,
             'formula_type' => $validated['formula_type'],
             'surcharge_amount' => $validated['surcharge_amount'],
@@ -185,6 +204,15 @@ class PricingRuleController extends Controller
         $pricingRule->update($updates);
 
         return redirect()->route('admin.pricing-rules.index');
+    }
+
+    public function destroy(PricingRule $pricingRule): RedirectResponse
+    {
+        $pricingRule->delete();
+
+        return redirect()
+            ->route('admin.pricing-rules.index')
+            ->with('status', 'Đã xoá công thức.');
     }
 
     /**

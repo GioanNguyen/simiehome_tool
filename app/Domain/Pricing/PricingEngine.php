@@ -17,7 +17,9 @@ use App\Models\Product;
  *
  *   1. An active rule tied directly to this product (product_id override).
  *   2. An active rule for the product's category (product_id is null).
- *   3. A default rule: catalog_price, no surcharge.
+ *   3. An active global rule (category and product_id both null) — one
+ *      formula shared by every category that has no rule of its own.
+ *   4. A default rule: catalog_price, no surcharge.
  *
  * This is what makes the engine "linh hoạt theo nhóm sản phẩm": admins
  * configure a formula per category (Bàn, Ghế, Giường, ...) without touching
@@ -70,6 +72,17 @@ final class PricingEngine
             if ($categoryRule !== null) {
                 return $categoryRule;
             }
+        }
+
+        $globalRule = PricingRule::query()
+            ->whereNull('product_id')
+            ->whereNull('category')
+            ->where('active', true)
+            ->latest('id')
+            ->first();
+
+        if ($globalRule !== null) {
+            return $globalRule;
         }
 
         return new PricingRule([

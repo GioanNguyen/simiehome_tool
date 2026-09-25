@@ -83,10 +83,32 @@ class CustomFormulaCalculatorTest extends TestCase
 
         $result = (new CustomFormulaCalculator)->calculate($product, ['quantity' => 1, 'length_cm' => 80], $rule);
 
-        // length_cm (80) <= minimum_length (100) => extra_fee applies.
-        $this->assertSame(50_000.0, $result->surcharge);
+        // length_cm (80) <= minimum_length (100) => extra_fee is folded
+        // into the unit price (per piece), not added as a line surcharge.
+        $this->assertSame((100_000.0 * 80) + 50_000.0, $result->unitPrice);
+        $this->assertSame(50_000.0, $result->unitSurcharge);
+        $this->assertSame(0.0, $result->surcharge);
         $this->assertSame((100_000.0 * 80) + 50_000.0, $result->lineTotal);
         $this->assertNull($result->warning);
+    }
+
+    public function test_the_product_extra_fee_is_charged_once_per_piece(): void
+    {
+        $product = Product::factory()->create([
+            'base_price' => 100_000,
+            'extra_fee' => 50_000,
+            'minimum_length' => 100,
+        ]);
+        $rule = new PricingRule([
+            'formula_type' => 'custom_formula',
+            'formula_config' => ['expression' => 'base_price', 'use_product_extra_fee' => true],
+            'surcharge_amount' => 0,
+        ]);
+
+        $result = (new CustomFormulaCalculator)->calculate($product, ['quantity' => 3, 'length_cm' => 80], $rule);
+
+        $this->assertSame(150_000.0, $result->unitPrice);
+        $this->assertSame(450_000.0, $result->lineTotal);
     }
 
     public function test_it_applies_the_product_extra_fee_when_length_equals_minimum_exactly(): void
@@ -104,7 +126,7 @@ class CustomFormulaCalculatorTest extends TestCase
 
         $result = (new CustomFormulaCalculator)->calculate($product, ['quantity' => 1, 'length_cm' => 100], $rule);
 
-        $this->assertSame(50_000.0, $result->surcharge);
+        $this->assertSame(50_000.0, $result->unitSurcharge);
     }
 
     public function test_it_does_not_apply_the_product_extra_fee_when_length_exceeds_minimum(): void
@@ -122,7 +144,7 @@ class CustomFormulaCalculatorTest extends TestCase
 
         $result = (new CustomFormulaCalculator)->calculate($product, ['quantity' => 1, 'length_cm' => 150], $rule);
 
-        $this->assertSame(0.0, $result->surcharge);
+        $this->assertSame(0.0, $result->unitSurcharge);
         $this->assertSame(100_000.0 * 150, $result->lineTotal);
     }
 

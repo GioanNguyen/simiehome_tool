@@ -52,6 +52,17 @@
                                                 @endif
                                             </span>
                                         </div>
+                                        @if ($result->main->unitSurcharge > 0)
+                                            <p class="mt-1 text-xs text-gray-500">
+                                                Đơn giá đã gồm phụ phí {{ number_format($result->main->unitSurcharge, 0, ',', '.') }} đ/sản phẩm
+                                                @if ($result->main->quantity > 1)
+                                                    × {{ $result->main->quantity }} = {{ number_format($result->main->unitSurcharge * $result->main->quantity, 0, ',', '.') }} đ
+                                                @endif
+                                            </p>
+                                        @endif
+                                        @if ($result->main->surcharge > 0)
+                                            <p class="mt-1 text-xs text-gray-500">+ Phụ phí {{ number_format($result->main->surcharge, 0, ',', '.') }} đ (đã gồm trong thành tiền)</p>
+                                        @endif
                                         @if ($result->main->warning)
                                             <p class="mt-1 text-xs font-medium text-amber-600">{{ $result->main->warning }}</p>
                                         @endif
@@ -78,6 +89,17 @@
                                                 @endif
                                             </span>
                                         </div>
+                                        @if ($addon->unitSurcharge > 0)
+                                            <p class="mt-1 text-xs text-gray-500">
+                                                Đơn giá đã gồm phụ phí {{ number_format($addon->unitSurcharge, 0, ',', '.') }} đ/sản phẩm
+                                                @if ($addon->quantity > 1)
+                                                    × {{ $addon->quantity }} = {{ number_format($addon->unitSurcharge * $addon->quantity, 0, ',', '.') }} đ
+                                                @endif
+                                            </p>
+                                        @endif
+                                        @if ($addon->surcharge > 0)
+                                            <p class="mt-1 text-xs text-gray-500">+ Phụ phí {{ number_format($addon->surcharge, 0, ',', '.') }} đ (đã gồm trong thành tiền)</p>
+                                        @endif
                                         @if ($addon->warning)
                                             <p class="mt-1 text-xs font-medium text-amber-600">{{ $addon->warning }}</p>
                                         @endif

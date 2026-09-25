@@ -17,5 +17,9 @@ final class LineCalculationResult
         public readonly string $formulaType,
         public readonly float $lineTotal,
         public readonly ?string $warning = null,
+        // Per-piece fee already folded into $unitPrice (e.g. the product's
+        // extra_fee for a custom length ≤ minimum_length). Informational —
+        // unlike $surcharge it is NOT added again to $lineTotal.
+        public readonly float $unitSurcharge = 0.0,
     ) {}
 }

@@ -175,6 +175,43 @@ class PricingRuleTest extends TestCase
         ]);
     }
 
+    public function test_it_creates_a_rule_for_all_categories(): void
+    {
+        $this->actingAs(User::factory()->admin()->create())
+            ->post(route('admin.pricing-rules.store'), [
+                'category' => '__all__',
+                'formula_type' => 'custom_formula',
+                'expression' => 'base_price * length_cm / 100',
+                'surcharge_amount' => 0,
+            ])
+            ->assertRedirect(route('admin.pricing-rules.index'));
+
+        $this->assertDatabaseHas('pricing_rules', [
+            'category' => null,
+            'product_id' => null,
+            'formula_type' => 'custom_formula',
+        ]);
+
+        $this->get(route('admin.pricing-rules.index'))
+            ->assertOk()
+            ->assertSee('Áp dụng cho mọi nhóm chưa có rule riêng');
+    }
+
+    public function test_it_rejects_a_rule_with_no_category_and_no_product(): void
+    {
+        $this->actingAs(User::factory()->admin()->create())
+            ->from(route('admin.pricing-rules.index'))
+            ->post(route('admin.pricing-rules.store'), [
+                'category' => '',
+                'formula_type' => 'fixed',
+                'surcharge_amount' => 0,
+            ])
+            ->assertRedirect(route('admin.pricing-rules.index'))
+            ->assertSessionHasErrors('category');
+
+        $this->assertDatabaseCount('pricing_rules', 0);
+    }
+
     public function test_it_updates_an_existing_rule(): void
     {
         $rule = PricingRule::query()->create([
@@ -365,5 +402,45 @@ class PricingRuleTest extends TestCase
             ->assertRedirect(route('admin.pricing-rules.index'));
 
         $this->assertSame(700_000, $rule->fresh()->formula_config['fixed_price']);
+    }
+
+    public function test_admin_can_delete_a_rule(): void
+    {
+        $rule = PricingRule::query()->create([
+            'category' => 'Bàn - Tables',
+            'formula_type' => 'fixed',
+            'surcharge_amount' => 0,
+            'active' => true,
+        ]);
+
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->get(route('admin.pricing-rules.index'))
+            ->assertOk()
+            ->assertSee(route('admin.pricing-rules.destroy', $rule), false);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.pricing-rules.destroy', $rule))
+            ->assertRedirect(route('admin.pricing-rules.index'))
+            ->assertSessionHas('status', 'Đã xoá công thức.');
+
+        $this->assertDatabaseMissing('pricing_rules', ['id' => $rule->id]);
+    }
+
+    public function test_non_admin_cannot_delete_a_rule(): void
+    {
+        $rule = PricingRule::query()->create([
+            'category' => 'Bàn - Tables',
+            'formula_type' => 'fixed',
+            'surcharge_amount' => 0,
+            'active' => true,
+        ]);
+
+        $this->actingAs(User::factory()->create())
+            ->delete(route('admin.pricing-rules.destroy', $rule))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('pricing_rules', ['id' => $rule->id]);
     }
 }

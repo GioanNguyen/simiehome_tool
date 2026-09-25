@@ -86,6 +86,9 @@
                                                 @endif
                                             </span>
                                         </div>
+                                        @if ((float) $item->surcharge > 0)
+                                            <p class="mt-1 text-xs text-gray-500">Thành tiền đã gồm phụ phí {{ number_format((float) $item->surcharge, 0, ',', '.') }} đ</p>
+                                        @endif
                                     </td>
                                     <td class="py-2 pr-4 text-gray-500">{{ $item->sku ?? '—' }}</td>
                                     <td class="py-2 pr-4">{{ $item->quantity }}</td>

@@ -23,9 +23,11 @@ use App\Models\Product;
  * silently swallowed.
  *
  * Surcharge: normally the rule's own fixed rule.surcharge_amount (same as
- * every other formula type). When rule.formula_config['use_product_extra_fee']
- * is true, the surcharge instead comes from the *product's own* extra_fee
- * column, and only applies conditionally: the customer's chosen length_cm
+ * every other formula type), added once per line. When
+ * rule.formula_config['use_product_extra_fee'] is true, the rule surcharge is
+ * ignored and the *product's own* extra_fee is added to the unit price
+ * instead (charged per piece, reported as unitSurcharge), only applying
+ * conditionally: the customer's chosen length_cm
  * must be at or below the product's minimum_length. This is the
  * "phụ phí lấy từ sản phẩm, chỉ áp dụng khi chiều dài ≤ chiều dài tối
  * thiểu" admin-configurable option — e.g. a short custom-cut piece needs
@@ -73,8 +75,15 @@ final class CustomFormulaCalculator implements PricingCalculator
                 .' thay thế. Vui lòng kiểm tra lại công thức.';
         }
 
+        $unitSurcharge = 0.0;
+
         if ($rule->formula_config['use_product_extra_fee'] ?? false) {
-            [$surcharge, $extraFeeWarning] = $this->productExtraFeeSurcharge($product, $context);
+            // The product's extra_fee is charged per piece: folded into the
+            // unit price (so Thành tiền = Đơn giá × SL) and reported via
+            // unitSurcharge so the UI/PDF can note what's included.
+            [$unitSurcharge, $extraFeeWarning] = $this->productExtraFeeSurcharge($product, $context);
+            $unitPrice += $unitSurcharge;
+            $surcharge = 0.0;
 
             if ($extraFeeWarning !== null) {
                 $warning = $warning !== null ? $warning.' '.$extraFeeWarning : $extraFeeWarning;
@@ -98,6 +107,7 @@ final class CustomFormulaCalculator implements PricingCalculator
             formulaType: 'custom_formula',
             lineTotal: $lineTotal,
             warning: $warning,
+            unitSurcharge: $unitSurcharge,
         );
     }
 

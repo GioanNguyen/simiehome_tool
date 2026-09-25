@@ -105,6 +105,13 @@ function quoteForm(initial = null) {
             priceEdited: mainDraft?.priceEdited ?? false,
             quantity: mainDraft?.quantity ?? 1,
             lengthCm: mainDraft?.lengthCm ?? null,
+            // Line-level surcharge from the Pricing Engine (e.g. the
+            // product's extra_fee for a length ≤ minimum_length). Added
+            // once to the line total, not multiplied by quantity.
+            surcharge: mainDraft?.surcharge ?? 0,
+            // Per-piece fee already included in main.price (product
+            // extra_fee) — shown as a note, never added again.
+            unitSurcharge: mainDraft?.unitSurcharge ?? 0,
             // Set when the Pricing Engine's custom-formula calculator
             // evaluated to 0đ and fell back to the sale/list price instead
             // — see previewMainPrice() and ProductPricePreviewController.
@@ -164,6 +171,8 @@ function quoteForm(initial = null) {
             // has nothing to do with the new one and trigger the formula
             // right away.
             this.main.lengthCm = null;
+            this.main.surcharge = 0;
+            this.main.unitSurcharge = 0;
             this.main.formulaWarning = null;
         },
 
@@ -185,6 +194,8 @@ function quoteForm(initial = null) {
 
             if (!this.main.lengthCm) {
                 this.main.price = this.main.catalogPrice;
+                this.main.surcharge = 0;
+            this.main.unitSurcharge = 0;
                 this.main.formulaWarning = null;
 
                 return;
@@ -217,6 +228,8 @@ function quoteForm(initial = null) {
                 }
 
                 this.main.price = preview.unit_price;
+                this.main.surcharge = Number(preview.surcharge ?? 0);
+                this.main.unitSurcharge = Number(preview.unit_surcharge ?? 0);
                 this.main.formulaWarning = preview.warning ?? null;
             });
         },
@@ -227,6 +240,8 @@ function quoteForm(initial = null) {
             this.main.imageUrl = null;
             this.main.price = 0;
             this.main.catalogPrice = 0;
+            this.main.surcharge = 0;
+            this.main.unitSurcharge = 0;
             this.main.priceEdited = false;
             this.main.query = '';
             this.main.results = [];
@@ -243,6 +258,8 @@ function quoteForm(initial = null) {
         resetMainPrice() {
             this.main.price = this.main.catalogPrice;
             this.main.priceEdited = false;
+            // Re-run the formula (and its surcharge) for the current length.
+            this.previewMainPrice();
         },
 
         addAddon() {
@@ -288,8 +305,11 @@ function quoteForm(initial = null) {
         },
 
         get subtotalPreview() {
+            // A manual price override drops the engine's surcharge on the
+            // server too (QuoteCalculator::manualOverrideLine).
             const mainTotal = this.main.productId
                 ? Number(this.main.price) * Number(this.main.quantity || 1)
+                    + (this.main.priceEdited ? 0 : Number(this.main.surcharge || 0))
                 : 0;
 
             const addonsTotal = this.addons.reduce((sum, addon) => {

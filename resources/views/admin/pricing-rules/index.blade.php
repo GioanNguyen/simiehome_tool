@@ -11,6 +11,8 @@
                 <p class="text-sm text-gray-600">
                     Mặc định mọi sản phẩm dùng <strong>giá theo catalog</strong> (đúng giá đã import từ CSV, không tính công thức).
                     Chỉ thêm rule bên dưới cho nhóm sản phẩm nào cần công thức khác, hoặc override riêng cho một SKU.
+                    Chọn <strong>"Tất cả nhóm sản phẩm"</strong> để dùng một công thức chung cho mọi nhóm.
+                    Thứ tự ưu tiên: rule riêng 1 sản phẩm &rarr; rule theo nhóm &rarr; rule tất cả nhóm &rarr; giá catalog.
                 </p>
 
                 <p class="mt-2 text-sm text-gray-600">
@@ -19,6 +21,14 @@
                 </p>
 
                 @error('expression')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+
+                @if (session('status'))
+                    <p class="mt-2 text-sm text-green-700">{{ session('status') }}</p>
+                @endif
+
+                @error('category')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
 
@@ -32,6 +42,7 @@
                             <label class="block text-xs font-medium text-gray-500">Nhóm sản phẩm (category)</label>
                             <select name="category" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm">
                                 <option value="">— Áp dụng theo SKU (chọn sản phẩm) —</option>
+                                <option value="{{ \App\Http\Controllers\Admin\PricingRuleController::ALL_CATEGORIES }}" @selected(old('category') === \App\Http\Controllers\Admin\PricingRuleController::ALL_CATEGORIES)>— Tất cả nhóm sản phẩm —</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category }}">{{ $category }}</option>
                                 @endforeach
@@ -101,11 +112,13 @@
 
                             <div>
                                 <p class="text-sm font-medium text-gray-900">
-                                    {{ $pricingRule->category ?? ($pricingRule->product?->name ?? 'Rule mặc định') }}
+                                    {{ $pricingRule->category ?? ($pricingRule->product?->name ?? 'Tất cả nhóm sản phẩm') }}
                                 </p>
                                 <p class="text-xs text-gray-500">
                                     @if ($pricingRule->product)
                                         Override riêng cho SKU {{ $pricingRule->product->sku ?? $pricingRule->product_id }}
+                                    @elseif ($pricingRule->category === null && $pricingRule->product_id === null)
+                                        Áp dụng cho mọi nhóm chưa có rule riêng
                                     @else
                                         Áp dụng cho cả nhóm
                                     @endif
@@ -135,9 +148,13 @@
                                     Active
                                 </label>
 
-                                <div class="flex items-end">
+                                <div class="flex items-end gap-3">
                                     <button type="submit" class="inline-flex rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">
                                         Lưu
+                                    </button>
+                                    {{-- Submits the separate delete form below (forms can't be nested). --}}
+                                    <button type="submit" form="delete-rule-{{ $pricingRule->id }}" class="inline-flex rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-50">
+                                        Xoá
                                     </button>
                                 </div>
                             </div>
@@ -181,6 +198,13 @@
                                     </div>
                                 </div>
                             </div>
+                        </form>
+
+                        <form id="delete-rule-{{ $pricingRule->id }}" method="POST" action="{{ route('admin.pricing-rules.destroy', $pricingRule) }}"
+                              onsubmit="return confirm({{ Js::from('Xoá công thức „'.($pricingRule->category ?? ($pricingRule->product?->name ?? 'Tất cả nhóm sản phẩm')).'“? Không thể hoàn tác.') }});"
+                              class="hidden">
+                            @csrf
+                            @method('DELETE')
                         </form>
                     @empty
                         <p class="text-sm text-gray-500">Chưa có rule nào — mọi sản phẩm đang dùng giá theo catalog mặc định.</p>

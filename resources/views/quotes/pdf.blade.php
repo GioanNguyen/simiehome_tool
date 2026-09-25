@@ -204,6 +204,9 @@
                         @if ($item->role === 'addon')
                             <span class="badge">Sản phẩm phụ</span>
                         @endif
+                        @if ((float) $item->surcharge > 0)
+                            <br><span style="color:#6b7280; font-size: 10px;">Thành tiền đã gồm phụ phí {{ number_format((float) $item->surcharge, 0, ',', '.') }} đ</span>
+                        @endif
                     </td>
                     <td>{{ $item->length_cm ? $item->length_cm.' cm' : '—' }}</td>
                     <td class="num">{{ $item->quantity }}</td>

@@ -145,7 +145,7 @@
                                  unchecked) — this makes old('update_images') and $request->boolean()
                                  behave correctly in both states, not just when checked. --}}
                             <input type="hidden" name="update_images" value="0">
-                            <input type="checkbox" name="update_images" value="1" class="mt-0.5" @checked(old('update_images', '1') === '1')>
+                            <input type="checkbox" name="update_images" value="1" class="mt-0.5" @checked(old('update_images', '0') === '1')>
                             <span>
                                 <span class="font-medium text-gray-900">Tải & cập nhật ảnh sản phẩm</span>
                                 <span class="block text-xs text-gray-500">

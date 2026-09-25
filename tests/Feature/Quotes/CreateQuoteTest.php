@@ -240,6 +240,42 @@ class CreateQuoteTest extends TestCase
             ->assertSessionHasErrors('discount');
     }
 
+    public function test_the_extra_fee_is_included_in_the_unit_price_per_piece_and_noted_on_confirm_and_detail(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create([
+            'base_price' => 6_875_000,
+            'extra_fee' => 400_000,
+            'minimum_length' => 200,
+        ]);
+
+        \App\Models\PricingRule::query()->create([
+            'formula_type' => 'custom_formula',
+            'formula_config' => ['expression' => 'base_price * length_cm / 100', 'use_product_extra_fee' => true],
+            'surcharge_amount' => 0,
+            'active' => true,
+        ]);
+
+        $session = $this->actingAs($user);
+        $session->post(route('quotes.preview'), [
+            'main' => ['product_id' => $product->id, 'quantity' => 2, 'length_cm' => 180],
+        ]);
+
+        $session->get(route('quotes.confirm'))
+            ->assertOk()
+            ->assertSee('Đơn giá đã gồm phụ phí 400.000 đ/sản phẩm')
+            ->assertSee('12.775.000')
+            ->assertSee('25.550.000');
+
+        $session->post(route('quotes.store'), ['customer_name' => 'A', 'customer_phone' => '0909']);
+
+        $this->assertDatabaseHas('quote_items', ['unit_price' => 12_775_000.00, 'quantity' => 2, 'surcharge' => 800_000.00, 'line_total' => 25_550_000.00]);
+
+        $session->get(route('quotes.show', Quote::query()->firstOrFail()))
+            ->assertOk()
+            ->assertSee('Thành tiền đã gồm phụ phí 800.000 đ');
+    }
+
     public function test_it_allows_a_quote_with_only_addons_and_no_main_product(): void
     {
         $user = User::factory()->create();

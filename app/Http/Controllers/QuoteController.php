@@ -309,7 +309,10 @@ class QuoteController extends Controller
             'unit_price' => $line->unitPrice,
             'quantity' => $line->quantity,
             'length_cm' => $line->lengthCm,
-            'surcharge' => $line->surcharge,
+            // Total fee contained in this line's line_total (snapshot, for
+            // display only): the line-level surcharge plus any per-piece fee
+            // already folded into unit_price.
+            'surcharge' => $line->surcharge + $line->unitSurcharge * $line->quantity,
             'formula_type' => $line->formulaType,
             'line_total' => $line->lineTotal,
             'position' => $position,
@@ -365,6 +368,8 @@ class QuoteController extends Controller
             'priceEdited' => $line->formulaType === 'manual_override',
             'quantity' => $line->quantity,
             'lengthCm' => $line->lengthCm,
+            'surcharge' => $line->formulaType === 'manual_override' ? 0 : $line->surcharge,
+            'unitSurcharge' => $line->formulaType === 'manual_override' ? 0 : $line->unitSurcharge,
             'formulaWarning' => $line->warning,
         ];
     }
