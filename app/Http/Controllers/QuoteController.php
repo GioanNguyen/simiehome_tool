@@ -108,6 +108,13 @@ class QuoteController extends Controller
     {
         $validated = $request->validate($this->calculatorRules());
 
+        if (($validated['discount']['type'] ?? null) === 'percent' && (float) ($validated['discount']['value'] ?? 0) > 100) {
+            return redirect()
+                ->route('quotes.create')
+                ->withErrors(['discount' => 'Giảm giá theo % không được vượt quá 100%.'])
+                ->withInput();
+        }
+
         // Fail fast with a friendly message instead of a blank confirmation
         // screen if nothing sellable was actually entered.
         if (empty($validated['main']['product_id'] ?? null)
@@ -181,6 +188,9 @@ class QuoteController extends Controller
                 'customer_email' => $customer['customer_email'] ?? null,
                 'subtotal' => $result->subtotal,
                 'fee_total' => $result->feeTotal,
+                'discount_type' => $result->discountType,
+                'discount_value' => $result->discountValue,
+                'discount_total' => $result->discountTotal,
                 'grand_total' => $result->grandTotal,
                 'notes' => $input['notes'] ?? null,
             ]);
@@ -280,6 +290,9 @@ class QuoteController extends Controller
             'fees.*.label' => ['nullable', 'string', 'max:255'],
             'fees.*.amount' => ['nullable', 'numeric', 'min:0'],
 
+            'discount.type' => ['nullable', 'in:amount,percent'],
+            'discount.value' => ['nullable', 'numeric', 'min:0'],
+
             'notes' => ['nullable', 'string'],
         ];
     }
@@ -324,6 +337,10 @@ class QuoteController extends Controller
             'main' => $result->main ? $this->lineToDraft($result->main) : null,
             'addons' => array_map(fn (LineCalculationResult $addon) => $this->lineToDraft($addon), $result->addons),
             'fees' => $result->fees,
+            'discount' => [
+                'type' => $input['discount']['type'] ?? 'amount',
+                'value' => $input['discount']['value'] ?? '',
+            ],
             'notes' => $input['notes'] ?? '',
         ];
     }

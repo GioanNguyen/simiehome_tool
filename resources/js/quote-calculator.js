@@ -127,6 +127,8 @@ function quoteForm(initial = null) {
             amount: fee.amount ?? 0,
         })),
         notes: initial?.notes ?? '',
+        discountType: initial?.discount?.type ?? 'amount',
+        discountValue: initial?.discount?.value ?? '',
 
         // IMPORTANT: any row (main or an addon) passed into these methods
         // must be the *reactive* object Alpine handed you (e.g. the loop
@@ -301,8 +303,21 @@ function quoteForm(initial = null) {
             return this.fees.reduce((sum, fee) => sum + Number(fee.amount || 0), 0);
         },
 
+        // Mirrors QuoteCalculator: discount applies to products + fees,
+        // percent capped at 100, fixed amount capped at the bill itself.
+        get discountPreview() {
+            const beforeDiscount = this.subtotalPreview + this.feeTotalPreview;
+            const value = Math.max(0, Number(this.discountValue || 0));
+
+            if (this.discountType === 'percent') {
+                return Math.round(beforeDiscount * Math.min(value, 100) / 100);
+            }
+
+            return Math.min(value, beforeDiscount);
+        },
+
         get grandTotalPreview() {
-            return this.subtotalPreview + this.feeTotalPreview;
+            return this.subtotalPreview + this.feeTotalPreview - this.discountPreview;
         },
 
         formatCurrency(value) {

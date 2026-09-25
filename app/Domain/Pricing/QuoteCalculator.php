@@ -28,6 +28,7 @@ final class QuoteCalculator
      *     main?: array{product_id?: int|null, quantity?: int|null, length_cm?: int|null, unit_price_override?: float|string|null},
      *     addons?: array<int, array{product_id?: int|null, quantity?: int|null, length_cm?: int|null}>,
      *     fees?: array<int, array{label?: string|null, amount?: float|null}>,
+     *     discount?: array{type?: string|null, value?: float|string|null},
      * }  $payload
      */
     public function calculate(array $payload): QuoteCalculationResult
@@ -91,13 +92,39 @@ final class QuoteCalculator
 
         $feeTotal = array_sum(array_column($fees, 'amount'));
 
+        // Discount applies to the whole bill (products + fees). A percent is
+        // capped at 100 and a fixed amount at the bill itself, so the grand
+        // total can never go negative.
+        $beforeDiscount = $subtotal + $feeTotal;
+        $discountType = $payload['discount']['type'] ?? null;
+        $discountValue = max(0.0, (float) ($payload['discount']['value'] ?? 0));
+        $discountTotal = 0.0;
+
+        if ($discountType === 'percent') {
+            $discountValue = min($discountValue, 100.0);
+            $discountTotal = round($beforeDiscount * $discountValue / 100);
+        } elseif ($discountType === 'amount') {
+            $discountTotal = min($discountValue, $beforeDiscount);
+        } else {
+            $discountType = null;
+        }
+
+        if ($discountTotal <= 0) {
+            $discountType = null;
+            $discountValue = 0.0;
+            $discountTotal = 0.0;
+        }
+
         return new QuoteCalculationResult(
             main: $main,
             addons: $addons,
             fees: $fees,
             subtotal: $subtotal,
             feeTotal: $feeTotal,
-            grandTotal: $subtotal + $feeTotal,
+            grandTotal: $beforeDiscount - $discountTotal,
+            discountType: $discountType,
+            discountValue: $discountValue,
+            discountTotal: $discountTotal,
         );
     }
 

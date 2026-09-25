@@ -189,6 +189,57 @@ class CreateQuoteTest extends TestCase
         $this->assertDatabaseHas('quotes', ['subtotal' => 3_200_000.00]);
     }
 
+    public function test_it_saves_a_percent_discount_on_the_whole_bill_and_shows_it_on_confirm_and_detail(): void
+    {
+        $user = User::factory()->create();
+        $table = Product::factory()->create(['sku' => 'BAN-140', 'regular_price' => 4_000_000, 'sale_price' => null]);
+
+        $session = $this->actingAs($user);
+        $session->post(route('quotes.preview'), [
+            'main' => ['product_id' => $table->id, 'quantity' => 1],
+            'fees' => [['label' => 'Phí ship', 'amount' => 1_000_000]],
+            'discount' => ['type' => 'percent', 'value' => 10],
+        ])->assertRedirect(route('quotes.confirm'));
+
+        $session->get(route('quotes.confirm'))
+            ->assertOk()
+            ->assertSee('Giảm giá')
+            ->assertSee('500.000')
+            ->assertSee('4.500.000');
+
+        $session->post(route('quotes.store'), [
+            'customer_name' => 'Nguyễn Văn A',
+            'customer_phone' => '0909123456',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('quotes', [
+            'subtotal' => 4_000_000.00,
+            'fee_total' => 1_000_000.00,
+            'discount_type' => 'percent',
+            'discount_value' => 10.00,
+            'discount_total' => 500_000.00,
+            'grand_total' => 4_500_000.00,
+        ]);
+
+        $session->get(route('quotes.show', Quote::query()->firstOrFail()))
+            ->assertOk()
+            ->assertSee('Giảm giá')
+            ->assertSee('(10%)');
+    }
+
+    public function test_a_percent_discount_over_100_is_rejected(): void
+    {
+        $table = Product::factory()->create(['regular_price' => 1_000_000, 'sale_price' => null]);
+
+        $this->actingAs(User::factory()->create())
+            ->post(route('quotes.preview'), [
+                'main' => ['product_id' => $table->id, 'quantity' => 1],
+                'discount' => ['type' => 'percent', 'value' => 150],
+            ])
+            ->assertRedirect(route('quotes.create'))
+            ->assertSessionHasErrors('discount');
+    }
+
     public function test_it_allows_a_quote_with_only_addons_and_no_main_product(): void
     {
         $user = User::factory()->create();

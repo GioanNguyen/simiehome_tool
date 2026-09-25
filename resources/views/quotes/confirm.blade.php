@@ -109,7 +109,7 @@
                     </table>
                 </div>
 
-                <dl class="mt-6 grid gap-4 border-t border-gray-100 pt-4 md:grid-cols-3">
+                <dl class="mt-6 grid gap-4 border-t border-gray-100 pt-4 {{ $result->discountTotal > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3' }}">
                     <div>
                         <dt class="text-sm text-gray-500">Tạm tính</dt>
                         <dd class="text-base font-medium text-gray-900">{{ number_format($result->subtotal, 0, ',', '.') }} đ</dd>
@@ -118,6 +118,17 @@
                         <dt class="text-sm text-gray-500">Phụ phí</dt>
                         <dd class="text-base font-medium text-gray-900">{{ number_format($result->feeTotal, 0, ',', '.') }} đ</dd>
                     </div>
+                    @if ($result->discountTotal > 0)
+                        <div>
+                            <dt class="text-sm text-gray-500">
+                                Giảm giá
+                                @if ($result->discountType === 'percent')
+                                    ({{ rtrim(rtrim(number_format($result->discountValue, 2, ',', '.'), '0'), ',') }}%)
+                                @endif
+                            </dt>
+                            <dd class="text-base font-medium text-red-600">- {{ number_format($result->discountTotal, 0, ',', '.') }} đ</dd>
+                        </div>
+                    @endif
                     <div>
                         <dt class="text-sm text-gray-500">Tổng giá bộ</dt>
                         <dd class="text-lg font-semibold text-brand-600">{{ number_format($result->grandTotal, 0, ',', '.') }} đ</dd>

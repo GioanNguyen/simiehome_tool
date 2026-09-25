@@ -235,6 +235,14 @@
             <td class="label">Phụ phí:</td>
             <td class="value">{{ number_format((float) $quote->fee_total, 0, ',', '.') }} đ</td>
         </tr>
+        @if ((float) $quote->discount_total > 0)
+            <tr>
+                <td class="label">
+                    Giảm giá{{ $quote->discount_type === 'percent' ? ' ('.rtrim(rtrim(number_format((float) $quote->discount_value, 2, ',', '.'), '0'), ',').'%)' : '' }}:
+                </td>
+                <td class="value">- {{ number_format((float) $quote->discount_total, 0, ',', '.') }} đ</td>
+            </tr>
+        @endif
         <tr class="grand-total">
             <td class="label">TỔNG CỘNG:</td>
             <td class="value">{{ number_format((float) $quote->grand_total, 0, ',', '.') }} đ</td>

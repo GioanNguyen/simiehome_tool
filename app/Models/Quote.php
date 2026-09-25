@@ -22,6 +22,9 @@ class Quote extends Model
         'customer_email',
         'subtotal',
         'fee_total',
+        'discount_type',
+        'discount_value',
+        'discount_total',
         'grand_total',
         'notes',
     ];
@@ -31,6 +34,8 @@ class Quote extends Model
         return [
             'subtotal' => 'decimal:2',
             'fee_total' => 'decimal:2',
+            'discount_value' => 'decimal:2',
+            'discount_total' => 'decimal:2',
             'grand_total' => 'decimal:2',
         ];
     }

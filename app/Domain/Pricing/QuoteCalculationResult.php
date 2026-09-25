@@ -15,5 +15,8 @@ final class QuoteCalculationResult
         public readonly float $subtotal,
         public readonly float $feeTotal,
         public readonly float $grandTotal,
+        public readonly ?string $discountType = null,
+        public readonly float $discountValue = 0.0,
+        public readonly float $discountTotal = 0.0,
     ) {}
 }

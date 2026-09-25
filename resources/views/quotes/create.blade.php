@@ -241,6 +241,40 @@
                         </div>
                     </section>
 
+                    {{-- Discount on the whole bill (products + fees) --}}
+                    <section>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Giảm giá</h3>
+
+                        <div class="mt-3 grid gap-4 md:grid-cols-8">
+                            <div class="md:col-span-3">
+                                <label class="block text-xs font-medium text-gray-500">Kiểu giảm</label>
+                                <select name="discount[type]" x-model="discountType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                    <option value="amount">Theo số tiền (đ)</option>
+                                    <option value="percent">Theo phần trăm (%)</option>
+                                </select>
+                            </div>
+
+                            <div class="md:col-span-3">
+                                <label class="block text-xs font-medium text-gray-500" x-text="discountType === 'percent' ? 'Phần trăm giảm (%)' : 'Số tiền giảm (đ)'"></label>
+                                <input
+                                    type="number"
+                                    name="discount[value]"
+                                    x-model="discountValue"
+                                    min="0"
+                                    :max="discountType === 'percent' ? 100 : null"
+                                    step="any"
+                                    placeholder="Bỏ trống nếu không giảm"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                >
+                            </div>
+
+                            <div class="md:col-span-2 flex items-end text-sm text-gray-600" x-show="discountPreview > 0" x-cloak>
+                                <span>- <span x-text="formatCurrency(discountPreview)"></span></span>
+                            </div>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-400">Áp dụng trên tổng hoá đơn (sản phẩm + phụ phí).</p>
+                    </section>
+
                     <section>
                         <label class="block text-sm font-medium text-gray-700">Ghi chú</label>
                         <textarea name="notes" rows="3" x-model="notes" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
@@ -248,7 +282,7 @@
 
                     {{-- Preview --}}
                     <section class="rounded-md bg-gray-50 p-4">
-                        <dl class="grid gap-2 text-sm md:grid-cols-3">
+                        <dl class="grid gap-2 text-sm md:grid-cols-4">
                             <div class="flex justify-between md:block">
                                 <dt class="text-gray-500">Tạm tính (sản phẩm)</dt>
                                 <dd class="font-medium text-gray-900" x-text="formatCurrency(subtotalPreview)"></dd>
@@ -256,6 +290,10 @@
                             <div class="flex justify-between md:block">
                                 <dt class="text-gray-500">Tổng phụ phí</dt>
                                 <dd class="font-medium text-gray-900" x-text="formatCurrency(feeTotalPreview)"></dd>
+                            </div>
+                            <div class="flex justify-between md:block">
+                                <dt class="text-gray-500">Giảm giá</dt>
+                                <dd class="font-medium text-red-600" x-text="discountPreview > 0 ? '- ' + formatCurrency(discountPreview) : formatCurrency(0)"></dd>
                             </div>
                             <div class="flex justify-between md:block">
                                 <dt class="text-gray-500">Tổng giá bộ (tạm tính)</dt>

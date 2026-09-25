@@ -248,4 +248,61 @@ class QuoteCalculatorTest extends TestCase
         $this->assertSame(0.0, $result->subtotal);
         $this->assertSame(100_000.0, $result->grandTotal);
     }
+    public function test_a_fixed_amount_discount_is_taken_off_the_whole_bill(): void
+    {
+        $table = Product::factory()->create(['regular_price' => 1_000_000, 'sale_price' => null]);
+
+        $result = (new QuoteCalculator)->calculate([
+            'main' => ['product_id' => $table->id, 'quantity' => 1],
+            'fees' => [['label' => 'Phí ship', 'amount' => 200_000]],
+            'discount' => ['type' => 'amount', 'value' => 150_000],
+        ]);
+
+        $this->assertSame('amount', $result->discountType);
+        $this->assertSame(150_000.0, $result->discountTotal);
+        $this->assertSame(1_050_000.0, $result->grandTotal);
+    }
+
+    public function test_a_percent_discount_is_calculated_on_products_plus_fees(): void
+    {
+        $table = Product::factory()->create(['regular_price' => 1_000_000, 'sale_price' => null]);
+
+        $result = (new QuoteCalculator)->calculate([
+            'main' => ['product_id' => $table->id, 'quantity' => 2],
+            'fees' => [['label' => 'Phí ship', 'amount' => 500_000]],
+            'discount' => ['type' => 'percent', 'value' => 10],
+        ]);
+
+        $this->assertSame('percent', $result->discountType);
+        $this->assertSame(10.0, $result->discountValue);
+        $this->assertSame(250_000.0, $result->discountTotal);
+        $this->assertSame(2_250_000.0, $result->grandTotal);
+    }
+
+    public function test_the_discount_never_makes_the_total_negative(): void
+    {
+        $table = Product::factory()->create(['regular_price' => 300_000, 'sale_price' => null]);
+
+        $result = (new QuoteCalculator)->calculate([
+            'main' => ['product_id' => $table->id, 'quantity' => 1],
+            'discount' => ['type' => 'amount', 'value' => 1_000_000],
+        ]);
+
+        $this->assertSame(300_000.0, $result->discountTotal);
+        $this->assertSame(0.0, $result->grandTotal);
+    }
+
+    public function test_an_empty_discount_value_means_no_discount(): void
+    {
+        $table = Product::factory()->create(['regular_price' => 300_000, 'sale_price' => null]);
+
+        $result = (new QuoteCalculator)->calculate([
+            'main' => ['product_id' => $table->id, 'quantity' => 1],
+            'discount' => ['type' => 'amount', 'value' => null],
+        ]);
+
+        $this->assertNull($result->discountType);
+        $this->assertSame(0.0, $result->discountTotal);
+        $this->assertSame(300_000.0, $result->grandTotal);
+    }
 }
