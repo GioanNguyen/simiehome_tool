@@ -69,7 +69,7 @@
             font-size: 12px;
         }
 
-        table.items .num { text-align: right; }
+        table.items .num { text-align: right; white-space: nowrap; }
 
         .totals {
             width: 280px;
@@ -82,7 +82,7 @@
         }
 
         .totals .label { color: #6b7280; }
-        .totals .value { text-align: right; font-weight: bold; }
+        .totals .value { text-align: right; font-weight: bold; white-space: nowrap; }
 
         .totals .grand-total td {
             border-top: 2px solid #7f9675;

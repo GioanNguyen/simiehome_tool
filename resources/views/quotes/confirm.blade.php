@@ -45,7 +45,7 @@
                                             <span>
                                                 {{ $result->main->productName }}
                                                 @if ($result->main->lengthCm)
-                                                    <span class="text-xs text-gray-500">({{ $result->main->lengthCm }} cm)</span>
+                                                    <span class="whitespace-nowrap text-xs text-gray-500">({{ $result->main->lengthCm }} cm)</span>
                                                 @endif
                                                 @if ($result->main->formulaType === 'manual_override')
                                                     <span class="ml-1 rounded bg-brand-50 px-1.5 py-0.5 text-xs text-brand-600">Giá sửa tay</span>
@@ -69,8 +69,8 @@
                                     </td>
                                     <td class="py-2 pr-4 text-gray-500">{{ $result->main->sku ?? '—' }}</td>
                                     <td class="py-2 pr-4">{{ $result->main->quantity }}</td>
-                                    <td class="py-2 pr-4">{{ number_format($result->main->unitPrice, 0, ',', '.') }} đ</td>
-                                    <td class="py-2 pr-4 font-medium">{{ number_format($result->main->lineTotal, 0, ',', '.') }} đ</td>
+                                    <td class="whitespace-nowrap py-2 pr-4">{{ number_format($result->main->unitPrice, 0, ',', '.') }} đ</td>
+                                    <td class="whitespace-nowrap py-2 pr-4 font-medium">{{ number_format($result->main->lineTotal, 0, ',', '.') }} đ</td>
                                 </tr>
                             @endif
 
@@ -85,7 +85,7 @@
                                             <span>
                                                 {{ $addon->productName }}
                                                 @if ($addon->lengthCm)
-                                                    <span class="text-xs text-gray-500">({{ $addon->lengthCm }} cm)</span>
+                                                    <span class="whitespace-nowrap text-xs text-gray-500">({{ $addon->lengthCm }} cm)</span>
                                                 @endif
                                             </span>
                                         </div>
@@ -106,8 +106,8 @@
                                     </td>
                                     <td class="py-2 pr-4 text-gray-500">{{ $addon->sku ?? '—' }}</td>
                                     <td class="py-2 pr-4">{{ $addon->quantity }}</td>
-                                    <td class="py-2 pr-4">{{ number_format($addon->unitPrice, 0, ',', '.') }} đ</td>
-                                    <td class="py-2 pr-4 font-medium">{{ number_format($addon->lineTotal, 0, ',', '.') }} đ</td>
+                                    <td class="whitespace-nowrap py-2 pr-4">{{ number_format($addon->unitPrice, 0, ',', '.') }} đ</td>
+                                    <td class="whitespace-nowrap py-2 pr-4 font-medium">{{ number_format($addon->lineTotal, 0, ',', '.') }} đ</td>
                                 </tr>
                             @endforeach
 
@@ -117,8 +117,8 @@
                                     <td class="py-2 pr-4 font-medium text-gray-900">{{ $fee['label'] }}</td>
                                     <td class="py-2 pr-4 text-gray-500">—</td>
                                     <td class="py-2 pr-4">1</td>
-                                    <td class="py-2 pr-4">{{ number_format($fee['amount'], 0, ',', '.') }} đ</td>
-                                    <td class="py-2 pr-4 font-medium">{{ number_format($fee['amount'], 0, ',', '.') }} đ</td>
+                                    <td class="whitespace-nowrap py-2 pr-4">{{ number_format($fee['amount'], 0, ',', '.') }} đ</td>
+                                    <td class="whitespace-nowrap py-2 pr-4 font-medium">{{ number_format($fee['amount'], 0, ',', '.') }} đ</td>
                                 </tr>
                             @endforeach
 

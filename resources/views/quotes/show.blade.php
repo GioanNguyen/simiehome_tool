@@ -82,7 +82,7 @@
                                             <span>
                                                 {{ $item->product_name ?? '—' }}
                                                 @if ($item->length_cm)
-                                                    <span class="text-xs text-gray-500">({{ $item->length_cm }} cm)</span>
+                                                    <span class="whitespace-nowrap text-xs text-gray-500">({{ $item->length_cm }} cm)</span>
                                                 @endif
                                             </span>
                                         </div>
@@ -92,8 +92,8 @@
                                     </td>
                                     <td class="py-2 pr-4 text-gray-500">{{ $item->sku ?? '—' }}</td>
                                     <td class="py-2 pr-4">{{ $item->quantity }}</td>
-                                    <td class="py-2 pr-4">{{ number_format((float) $item->unit_price, 0, ',', '.') }} đ</td>
-                                    <td class="py-2 pr-4 font-medium">{{ number_format((float) $item->line_total, 0, ',', '.') }} đ</td>
+                                    <td class="whitespace-nowrap py-2 pr-4">{{ number_format((float) $item->unit_price, 0, ',', '.') }} đ</td>
+                                    <td class="whitespace-nowrap py-2 pr-4 font-medium">{{ number_format((float) $item->line_total, 0, ',', '.') }} đ</td>
                                 </tr>
                             @empty
                                 <tr>

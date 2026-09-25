@@ -84,7 +84,7 @@
                                     <td class="py-2 pr-4 text-gray-500">{{ $quote->user?->name ?? '—' }}</td>
                                     <td class="py-2 pr-4 text-gray-500">{{ $quote->customer_name ?? '—' }}</td>
                                     <td class="py-2 pr-4 text-gray-500">{{ $quote->customer_phone ?? '—' }}</td>
-                                    <td class="py-2 pr-4 font-medium">{{ number_format((float) $quote->grand_total, 0, ',', '.') }} đ</td>
+                                    <td class="whitespace-nowrap py-2 pr-4 font-medium">{{ number_format((float) $quote->grand_total, 0, ',', '.') }} đ</td>
                                     <td class="py-2 pr-4 text-right whitespace-nowrap">
                                         <a href="{{ route('quotes.show', $quote) }}" class="font-medium text-brand-600 hover:underline">Xem</a>
                                         @can('delete-quotes')
