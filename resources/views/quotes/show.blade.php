@@ -48,6 +48,10 @@
                         <dt class="text-sm text-gray-500">Người báo giá</dt>
                         <dd class="text-sm font-medium text-gray-900">{{ $quote->user?->name ?? '—' }} · {{ $quote->created_at->format('d/m/Y H:i') }}</dd>
                     </div>
+                    <div class="md:col-span-4">
+                        <dt class="text-sm text-gray-500">Địa chỉ</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ $quote->customer_address ?: '—' }}</dd>
+                    </div>
                 </dl>
 
                 <div class="overflow-x-auto">

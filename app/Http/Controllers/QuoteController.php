@@ -172,6 +172,7 @@ class QuoteController extends Controller
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_phone' => ['required', 'string', 'max:30'],
             'customer_email' => ['nullable', 'email', 'max:255'],
+            'customer_address' => ['nullable', 'string', 'max:500'],
         ], [
             'customer_name.required' => 'Vui lòng nhập tên khách hàng.',
             'customer_phone.required' => 'Vui lòng nhập số điện thoại khách hàng.',
@@ -186,6 +187,7 @@ class QuoteController extends Controller
                 'customer_name' => $customer['customer_name'] ?? null,
                 'customer_phone' => $customer['customer_phone'] ?? null,
                 'customer_email' => $customer['customer_email'] ?? null,
+                'customer_address' => $customer['customer_address'] ?? null,
                 'subtotal' => $result->subtotal,
                 'fee_total' => $result->feeTotal,
                 'discount_type' => $result->discountType,

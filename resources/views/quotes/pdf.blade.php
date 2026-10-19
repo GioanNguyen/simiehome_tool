@@ -167,6 +167,12 @@
                 <td colspan="3">{{ $quote->customer_email }}</td>
             </tr>
         @endif
+        @if ($quote->customer_address)
+            <tr>
+                <td class="label">Địa chỉ:</td>
+                <td colspan="3">{{ $quote->customer_address }}</td>
+            </tr>
+        @endif
         <tr>
             <td class="label">Nhân viên:</td>
             <td colspan="3">{{ $quote->user?->name ?? '—' }}</td>

@@ -20,6 +20,7 @@ class Quote extends Model
         'customer_name',
         'customer_phone',
         'customer_email',
+        'customer_address',
         'subtotal',
         'fee_total',
         'discount_type',

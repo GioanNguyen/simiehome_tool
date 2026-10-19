@@ -185,6 +185,10 @@
                             <label class="block text-sm font-medium text-gray-700">Email (không bắt buộc)</label>
                             <input type="email" name="customer_email" value="{{ old('customer_email') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700">Địa chỉ (không bắt buộc)</label>
+                            <input type="text" name="customer_address" value="{{ old('customer_address') }}" maxlength="500" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </div>
                     </div>
 
                     <div class="flex items-center gap-3">

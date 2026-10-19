@@ -276,6 +276,29 @@ class CreateQuoteTest extends TestCase
             ->assertSee('Thành tiền đã gồm phụ phí 800.000 đ');
     }
 
+    public function test_it_saves_the_customer_address_and_shows_it_on_the_detail_page_and_pdf(): void
+    {
+        $user = User::factory()->create();
+        $table = Product::factory()->create(['regular_price' => 1_000_000, 'sale_price' => null]);
+
+        $session = $this->actingAs($user);
+        $session->post(route('quotes.preview'), ['main' => ['product_id' => $table->id, 'quantity' => 1]]);
+        $session->post(route('quotes.store'), [
+            'customer_name' => 'Nguyễn Văn A',
+            'customer_phone' => '0909123456',
+            'customer_address' => '12 Lê Lợi, Quận 1, TP.HCM',
+        ])->assertRedirect();
+
+        $quote = Quote::query()->firstOrFail();
+        $this->assertSame('12 Lê Lợi, Quận 1, TP.HCM', $quote->customer_address);
+
+        $session->get(route('quotes.show', $quote))
+            ->assertOk()
+            ->assertSee('12 Lê Lợi, Quận 1, TP.HCM');
+
+        $session->get(route('quotes.pdf', $quote))->assertOk();
+    }
+
     public function test_it_allows_a_quote_with_only_addons_and_no_main_product(): void
     {
         $user = User::factory()->create();
